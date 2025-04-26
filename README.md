@@ -1,6 +1,6 @@
 -- Angular --
 
-ssh-keygen -t rsa -b 4096 -C "shahshreyansh2000@example.com" -- (to create ssh for github)
+ssh-keygen -t rsa -b 4096 -C "example.gmail.com" -- (to create ssh for github)
 
 angular cli
 
