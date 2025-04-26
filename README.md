@@ -1,4 +1,4 @@
-Angular --
+-- Angular --
 
 ssh-keygen -t rsa -b 4096 -C "shahshreyansh2000@example.com" -- (to create ssh for github)
 
@@ -16,3 +16,6 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass   -->  This command t
 ng serve
 
 npm install ngx-bootstrap@18 bootstrap font-awesome
+
+
+* If want to use https in angular we can work using mkcert -- for installation we can refer mkcert github
