@@ -17,5 +17,8 @@ ng serve
 
 npm install ngx-bootstrap@18 bootstrap font-awesome
 
+npm install ngx-toastr
+
+npm i bootswatch
 
 * If want to use https in angular we can work using mkcert -- for installation we can refer mkcert github
