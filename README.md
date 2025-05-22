@@ -22,3 +22,7 @@ npm install ngx-toastr
 npm i bootswatch
 
 * If want to use https in angular we can work using mkcert -- for installation we can refer mkcert github
+
+npm install ng-image-slider
+
+npm install ngx-spinner@18.0.0
