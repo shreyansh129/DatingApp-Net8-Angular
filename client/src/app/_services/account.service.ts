@@ -12,32 +12,35 @@ export class AccountService {
   private http = inject(HttpClient);
   baseurl = environment.apiUrl;
   currentUser = signal<user | null>(null);
-  
-  login(model:any) {
+
+  login(model: any) {
     return this.http.post<user>(this.baseurl + 'account/login', model).pipe(
       map(user => {
-        if(user){
-          localStorage.setItem('user', JSON.stringify(user));
-          this.currentUser.set(user);
+        if (user) {
+          this.setCurrentUser(user);
         }
         return user;
       })
     )
   }
 
-  register(model:any){
+  register(model: any) {
     return this.http.post<user>(this.baseurl + 'account/register', model).pipe(
       map(user => {
-        if(user){
-          localStorage.setItem('user',JSON.stringify(user));
-          this.currentUser.set(user);
+        if (user) {
+          this.setCurrentUser(user);
         }
         return user;
       })
     )
   }
 
-  logout(){
+  setCurrentUser(user: user) {
+    localStorage.setItem('user', JSON.stringify(user));
+    this.currentUser.set(user);
+  }
+
+  logout() {
     localStorage.removeItem('user');
     this.currentUser.set(null);
   }
