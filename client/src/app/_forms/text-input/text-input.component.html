@@ -1,0 +1,17 @@
+<div class="mb-4 form-floating">
+    <input
+    [class.is-invalid]="registerForm.get('password')?.errors && 
+    registerForm.get('password')?.touched"
+    type="password"
+    class="form-control"
+    formControlName="password"
+    placeholder="Enter password"
+    />
+    <label>Password</label>
+    <div *ngIf="registerForm.get('password')?.hasError('required')"
+     class="invalid-feedback text-start">Please enter a Password</div>
+    <div *ngIf="registerForm.get('password')?.hasError('minlength')"
+     class="invalid-feedback text-start">Password must be at least 4 characters</div>
+    <div *ngIf="registerForm.get('password')?.hasError('maxlength')"
+     class="invalid-feedback text-start">Password must be at most 8 characters</div>
+  </div>
