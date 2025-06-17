@@ -107,58 +107,67 @@
       class="p-4 shadow rounded bg-body text-body" style="max-width: 400px; margin: auto;">
   <h2 class="text-center text-primary mb-4">Create an Account</h2>
   <hr>
-  <div class="mb-3 form-floating">
-    <input
-    [class.is-invalid]="registerForm.get('username')?.errors && 
-    registerForm.get('username')?.touched"
-      type="text"
-      class="form-control"
-      formControlName="username"
-      placeholder="Enter username"
-      />
-      <label>Username</label>
-      <div class="invalid-feedback text-start">Please enter a Username</div>
+
+  <div class="mb-3">
+    <label style="margin-right: 10px;">I am a: </label>
+    <label class="form-check-label">
+      <input type="radio" class="form-check-input" value="male" formControlName="gender"> Male 
+    </label>
+
+    <label class="form-check-label">
+      <input type="radio" class="form-check-input" value="female" formControlName="gender"> Female
+    </label>
   </div>
 
-  <div class="mb-4 form-floating">
-    <input
-    [class.is-invalid]="registerForm.get('password')?.errors && 
-    registerForm.get('password')?.touched"
-    type="password"
-    class="form-control"
-    formControlName="password"
-    placeholder="Enter password"
-    />
-    <label>Password</label>
-    <div *ngIf="registerForm.get('password')?.hasError('required')"
-     class="invalid-feedback text-start">Please enter a Password</div>
-    <div *ngIf="registerForm.get('password')?.hasError('minlength')"
-     class="invalid-feedback text-start">Password must be at least 4 characters</div>
-    <div *ngIf="registerForm.get('password')?.hasError('maxlength')"
-     class="invalid-feedback text-start">Password must be at most 8 characters</div>
-  </div>
+  <app-text-input
+  [formControl]="$any(registerForm.controls['username'])"
+  [label]="'Username'"
+  ></app-text-input>
+ 
+  <app-text-input
+  [formControl]="$any(registerForm.controls['knownAs'])"
+  [label]="'Known As'"
+  ></app-text-input>
+  
+  <app-date-picker
+  [formControl]="$any(registerForm.controls['dateOfBirth'])"
+  [label]="'Date of birth'" [maxDate]="maxDate"
+  ></app-date-picker>
+  
+  <app-text-input
+  [formControl]="$any(registerForm.controls['city'])"
+  [label]="'City'"
+  ></app-text-input>
+  
+  <app-text-input
+  [formControl]="$any(registerForm.controls['country'])"
+  [label]="'Country'"
+  ></app-text-input>
 
-   <div class="mb-4 form-floating">
-     <input
-       [class.is-invalid]="registerForm.get('confirmPassword')?.errors && 
-        registerForm.get('confirmPassword')?.touched"
-     type="password"
-     class="form-control"
-     formControlName="confirmPassword"
-     placeholder="Confirm Password"
-     />
-     <label>Confirm Password</label>
-      <div *ngIf="registerForm.get('confirmPassword')?.hasError('required')"
-     class="invalid-feedback text-start">Please enter a confirm password</div>
-    <div *ngIf="registerForm.get('confirmPassword')?.hasError('isMatching')"
-     class="invalid-feedback text-start">Confirm Password must match password</div>
-  </div>
+  <app-text-input
+  [formControl]="$any(registerForm.controls['password'])"
+  [label]="'Password'"
+  [type]="'password'"
+  ></app-text-input>
+
+  <app-text-input
+  [formControl]="$any(registerForm.controls['confirmPassword'])"
+  [label]="'Confirm password'"
+  [type]="'password'"
+  ></app-text-input>
+
+  @if (validationErrors) {
+    <div class="alert alert-danger text-start">
+      <ul>
+        @for (error of validationErrors; track $index) {
+          <li>{{error}}</li>
+        }
+      </ul>
+    </div>
+  }
 
   <div class="d-grid gap-2">
-    <button class="btn btn-primary" type="submit">Sign Up</button>
+    <button [disabled]="!registerForm.valid" class="btn btn-primary" type="submit">Register</button>
     <button class="btn btn-outline-secondary" type="button" (click)="cancel()">Cancel</button>
   </div>
 </form>
-
-  <p>Form value: {{registerForm.value | json}}</p>
-  <p>Form status: {{registerForm.status | json}}</p>

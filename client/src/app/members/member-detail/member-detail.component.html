@@ -42,11 +42,21 @@
                 <h4>Interests</h4>
                 <p>{{member.interests}}</p>
             </tab>
-            <tab heading="Photos" #photoTab="tab">
+            <!-- <tab heading="Photos" #photoTab="tab">
                 @if(photoTab.active){
                 <ng-image-slider [images]="galleryImages" class="gallery"></ng-image-slider>
                 }
+            </tab> -->
+            <tab heading="Photos" #photoTab="tab">
+                <ng-image-slider *ngIf="photoTab.active && galleryImages?.length" [images]="galleryImages"
+                    class="gallery">
+                </ng-image-slider>
+
+                <div *ngIf="photoTab.active && (!galleryImages || galleryImages.length===0)">
+                    No photos available.
+                </div>
             </tab>
+
             <tab heading="Message">
                 <h4>Message will go here</h4>
             </tab>
