@@ -5,6 +5,7 @@ import { Member } from '../_model/member';
 import { of, tap } from 'rxjs';
 import { Photo } from '../_model/photo';
 import { PaginatedResult } from '../_model/pagination';
+import { userParams } from '../_model/userParams';
 
 @Injectable({
   providedIn: 'root'
@@ -15,15 +16,15 @@ export class MembersService {
   // members = signal<Member[]>([]);
   paginatedResult = signal<PaginatedResult<Member[]> | null>(null);
 
-  getMembers(pageNumber?: number, pageSize?: number) {
-  let params = new HttpParams();
+  getMembers(userParams: userParams) {
+    let params = this.setPaginationHeaders(userParams.pageNumber, userParams.pageSize);
 
-  if (pageNumber && pageSize) {
-    params = params.append('pageNumber', pageNumber);
-    params = params.append('pageSize', pageSize);
-  }
+    params = params.append('minAge', userParams.minAge);
+    params = params.append('maxAge', userParams.maxAge);
+    params = params.append('gender', userParams.gender);
+    params = params.append('orderBy', userParams.orderBy);
 
-    return this.http.get<Member[]>(this.baseUrl + 'users',{observe: 'response', params}).subscribe({
+    return this.http.get<Member[]>(this.baseUrl + 'users', { observe: 'response', params }).subscribe({
       next: response => {
         this.paginatedResult.set({
           items: response.body as Member[],
@@ -31,6 +32,16 @@ export class MembersService {
         })
       }
     })
+  }
+
+  private setPaginationHeaders(pageNumber: number, pageSize: number) {
+    let params = new HttpParams();
+
+    if (pageNumber && pageSize) {
+      params = params.append('pageNumber', pageNumber);
+      params = params.append('pageSize', pageSize);
+    }
+    return params;
   }
 
   getMember(username: string) {
@@ -47,7 +58,7 @@ export class MembersService {
     )
   }
 
-  setMainPhoto(photo: Photo){
+  setMainPhoto(photo: Photo) {
     return this.http.put(this.baseUrl + 'users/set-main-photo/' + photo.id, {}).pipe(
       // tap(()=>{
       //   this.members.update(members => members.map(m => {
@@ -60,7 +71,7 @@ export class MembersService {
     )
   }
 
-  deletePhoto(photo: Photo){
+  deletePhoto(photo: Photo) {
     return this.http.delete(this.baseUrl + 'users/delete-photo/' + photo.id).pipe(
       // tap(()=>{
       //   this.members.update(members => members.map(m => {
