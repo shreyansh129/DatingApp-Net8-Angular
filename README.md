@@ -26,3 +26,5 @@ npm i bootswatch
 npm install ng-image-slider
 
 npm install ngx-spinner@18.0.0
+
+npm install ngx-timeago
