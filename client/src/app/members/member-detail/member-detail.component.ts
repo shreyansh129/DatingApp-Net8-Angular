@@ -18,17 +18,42 @@ import { MessageService } from '../../_services/message.service';
   styleUrl: './member-detail.component.css'
 })
 export class MemberDetailComponent implements OnInit {
-  @ViewChild('membertabs') memberTabs?: TabsetComponent;
-  private memberService = inject(MembersService);
+  @ViewChild('memberTabs', {static: true}) memberTabs?: TabsetComponent;
   private messageService = inject(MessageService);
+  private memberService = inject(MembersService);
   private route = inject(ActivatedRoute);
-  member?: Member;
+  member: Member = {} as Member;
   galleryImages: { image: string, thumbImage: string }[] = [];
   activeTab?: TabDirective;
   messages: Message[] = [];
 
-  ngOnInit(): void {
-    this.loadMember();
+ngOnInit(): void {
+  this.route.data.subscribe({
+    next: data => {
+      this.member = data['member'];
+      this.galleryImages = this.member?.photos?.map(p => ({
+        image: p.url,
+        thumbImage: p.url
+      })) || [];
+    }
+  });
+
+    this.route.queryParams.subscribe({
+      next: params => {
+        params['tab'] && this.selectTab(params['tab'])
+      }
+    })
+  }
+
+  onUpdateMessages(event: Message){
+    this.messages.push(event);
+  }
+
+  selectTab(heading: string) {
+    if (this.member) {
+      const messageTab = this.memberTabs?.tabs.find(x => x.heading === heading);
+      if (messageTab) messageTab.active = true;
+    }
   }
 
   onTabActivated(data: TabDirective) {
@@ -40,19 +65,19 @@ export class MemberDetailComponent implements OnInit {
     }
   }
 
-  loadMember() {
-    const username = this.route.snapshot.paramMap.get('username');
-    if (!username) return;
-    this.memberService.getMember(username).subscribe({
-      next: member => {
-        this.member = member;
-        member.photos.map(p => {
-          this.galleryImages = member.photos.map(p => ({
-            image: p.url,
-            thumbImage: p.url
-          }))
-        })
-      }
-    })
-  }
+  // loadMember() {
+  //   const username = this.route.snapshot.paramMap.get('username');
+  //   if (!username) return;
+  //   this.memberService.getMember(username).subscribe({
+  //     next: member => {
+  //       this.member = member;
+  //       member.photos.map(p => {
+  //         this.galleryImages = member.photos.map(p => ({
+  //           image: p.url,
+  //           thumbImage: p.url
+  //         }))
+  //       })
+  //     }
+  //   })
+  // }
 }

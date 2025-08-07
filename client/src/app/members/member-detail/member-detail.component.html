@@ -1,4 +1,4 @@
-@if (member) {
+
 <div class="row">
     <div class="col-4">
         <div class="card">
@@ -25,7 +25,7 @@
             <div class="card-footer">
                 <div class="btn-group d-flex">
                     <button class="btn btn-primary">Like</button>
-                    <button class="btn btn-info">Message</button>
+                    <button (click)="selectTab('Messages')" class="btn btn-info">Message</button>
                 </div>
             </div>
         </div>
@@ -57,10 +57,13 @@
                 </div>
             </tab>
 
-            <tab heading="Message" (selectTab)="onTabActivated($event)">
-                <app-member-messages [username]="member.userName"></app-member-messages>
+            <tab heading="Messages" (selectTab)="onTabActivated($event)">
+                <app-member-messages 
+                [username]="member.userName" 
+                [messages]="messages"
+                (updateMessages)="onUpdateMessages($event)"
+                ></app-member-messages>
             </tab>
         </tabset>
     </div>
 </div>
-}
