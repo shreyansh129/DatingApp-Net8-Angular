@@ -27,7 +27,7 @@ public class PresenceHub(PresenceTracker tracker) : Hub
         await Clients.Others.SendAsync("UserIsOffline", Context.User?.GetUsername());
 
         var currentUser = await tracker.GetOnlineUsers();
-        await Clients.All.SendAsync("GetOnlineUsers", currentUser);
+        await Clients.All.SendAsync("-", currentUser);
 
         await base.OnDisconnectedAsync(exception);
     }
