@@ -8,7 +8,8 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace API.SignalR;
 
-public class MessageHub(IMessageRepository messageRepository, IUserRepository userRepository, IMapper mapper) : Hub
+public class MessageHub(IMessageRepository messageRepository, IUserRepository userRepository,
+ IMapper mapper, IHubContext<PresenceHub> presenceHub) : Hub
 {
     public override async Task OnConnectedAsync()
     {
@@ -18,16 +19,19 @@ public class MessageHub(IMessageRepository messageRepository, IUserRepository us
             throw new Exception("Cannot join group");
         var groupName = GetGroupName(Context.User.GetUsername(), otherUser);
         await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
-        await AddToGroup(groupName);
+        var group = await AddToGroup(groupName);
+
+        await Clients.Group(groupName).SendAsync("UpdatedGroup", group);
 
         var messages = await messageRepository.GetMessagesThread(Context.User.GetUsername(), otherUser!);
 
-        await Clients.Group(groupName).SendAsync("ReceiveMessageThread", messages);
+        await Clients.Caller.SendAsync("ReceiveMessageThread", messages);
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
-        await RemoveFromMessageGroup();
+        var group =  await RemoveFromMessageGroup();
+        await Clients.Group(group.Name).SendAsync("UpdatedGroup", group);
         await base.OnDisconnectedAsync(exception);
     }
 
@@ -60,6 +64,15 @@ public class MessageHub(IMessageRepository messageRepository, IUserRepository us
         {
             message.DateRead = DateTime.UtcNow;
         }
+        else
+        {
+            var connections = await PresenceTracker.GetConnectionsForUser(recipient.UserName);
+            if (connections != null && connections?.Count != null)
+            {
+                await presenceHub.Clients.Clients(connections).SendAsync("NewMessageRecived",
+                new { username = sender.UserName, knownAs = sender.KnownAs });
+            }
+        }
 
         messageRepository.AddMessage(message);
 
@@ -75,7 +88,7 @@ public class MessageHub(IMessageRepository messageRepository, IUserRepository us
         return stringCompare ? $"{caller}-{other}" : $"{other}-{caller}";
     }
 
-    private async Task<bool> AddToGroup(string groupName)
+    private async Task<Group> AddToGroup(string groupName)
     {
         var username = Context.User?.GetUsername() ?? throw new Exception("cannot get username");
         var group = await messageRepository.GetMessageGroup(groupName);
@@ -88,16 +101,20 @@ public class MessageHub(IMessageRepository messageRepository, IUserRepository us
         }
         group.Connections.Add(connection);
 
-        return await messageRepository.SaveAllAsync();
+        if (await messageRepository.SaveAllAsync()) return group;
+
+        throw new HubException("Failed to join group");
     }
 
-    private async Task RemoveFromMessageGroup()
+    private async Task<Group> RemoveFromMessageGroup()
     {
-        var connection = await messageRepository.GetConnection(Context.ConnectionId);
-        if (connection != null)
+        var group = await messageRepository.GetGroupForConnection(Context.ConnectionId);
+        var connection = group?.Connections.FirstOrDefault(x => x.ConnectionId == Context.ConnectionId);
+        if (connection != null && group != null)
         {
             messageRepository.RemoveConnection(connection);
-            await messageRepository.SaveAllAsync();
+            if (await messageRepository.SaveAllAsync()) return group;
         }
+        throw new Exception("Failed to remove from group");
     }
 }
